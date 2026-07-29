@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>לוח גאנט – ארגון כנס שנתי לעמותת EURA</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dfe5ee;
+      --header: #123a63;
+      --header-2: #1f5d8f;
+      --not-started: #dbeafe;
+      --in-progress: #fde68a;
+      --done: #bbf7d0;
+      --accent: #0f766e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--header), var(--header-2));
+      color: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(18, 58, 99, 0.18);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+    }
+
+    .hero p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.9rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(31, 41, 55, 0.06);
+    }
+
+    .timeline-wrap {
+      overflow-x: auto;
+      direction: ltr;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1450px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.88rem;
+      direction: rtl;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      padding: 8px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    thead th {
+      background: #eef3f8;
+      color: #17324d;
+      font-weight: 800;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    th.info, td.info {
+      position: sticky;
+      right: 0;
+      z-index: 3;
+      background: white;
+    }
+
+    th.task, td.task {
+      right: 46px;
+      min-width: 220px;
+      text-align: right;
+    }
+
+    th.owner, td.owner {
+      right: 266px;
+      min-width: 150px;
+    }
+
+    th.status, td.status {
+      right: 416px;
+      min-width: 125px;
+    }
+
+    td.task, td.owner, td.status, td.info {
+      background: white;
+    }
+
+    tr:hover td { background-color: #fafcff; }
+    tr:hover td.task, tr:hover td.owner, tr:hover td.status, tr:hover td.info { background: #fafcff; }
+
+    .day-head {
+      min-width: 34px;
+      padding: 6px 3px;
+      font-size: 0.78rem;
+    }
+
+    .weekend {
+      background: #f3f4f6 !important;
+      color: #6b7280;
+    }
+
+    .bar {
+      height: 24px;
+      border-radius: 7px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+    }
+
+    .not-started { background: var(--not-started); }
+    .in-progress { background: var(--in-progress); }
+    .done { background: var(--done); }
+
+    select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px;
+      background: white;
+      font: inherit;
+    }
+
+    .details {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .detail-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .detail-card h3 {
+      margin: 0 0 8px;
+      color: var(--header);
+      font-size: 1rem;
+    }
+
+    .detail-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 700px) {
+      .page { padding: 12px; }
+      .hero { padding: 18px; border-radius: 14px; }
+      .toolbar { align-items: stretch; }
+      .actions { width: 100%; }
+      .actions button { flex: 1; }
+    }
+
+    @media print {
+      body { background: white; }
+      .page { max-width: none; padding: 0; }
+      .toolbar, .footer-note { display: none; }
+      .card { box-shadow: none; border: 0; }
+      .timeline-wrap { overflow: visible; }
+      table { min-width: 0; font-size: 8px; }
+      th.info, td.info, th.task, td.task, th.owner, td.owner, th.status, td.status {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>לוח גאנט – ארגון כנס שנתי לעמותת EURA</h1>
+      <p>Project Timeline | אוגוסט 2026</p>
+    </section>
+
+    <section class="toolbar" aria-label="כלי לוח">
+      <div class="legend">
+        <span class="legend-item"><span class="dot" style="background: var(--not-started)"></span>לא התחיל</span>
+        <span class="legend-item"><span class="dot" style="background: var(--in-progress)"></span>בתהליך</span>
+        <span class="legend-item"><span class="dot" style="background: var(--done)"></span>הושלם</span>
+      </div>
+      <div class="actions">
+        <button class="primary" onclick="window.print()">הדפסה / שמירה כ-PDF</button>
+        <button class="secondary" onclick="resetStatuses()">איפוס סטטוסים</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="timeline-wrap">
+        <table id="ganttTable" aria-label="לוח גאנט לפרויקט">
+          <thead>
+            <tr id="headerRow">
+              <th class="info">מס׳</th>
+              <th class="task">משימה</th>
+              <th class="owner">אחראי</th>
+              <th class="status">סטטוס</th>
+              <th>התחלה</th>
+              <th>סיום</th>
+              <th>משך</th>
+              <th>תלות</th>
+            </tr>
+          </thead>
+          <tbody id="taskRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="details">
+      <article class="detail-card">
+        <h3>מטרת הפרויקט</h3>
+        <p>תכנון וביצוע כנס שנתי לעמותת EURA, החל מסגירת המקום ועד סיכום ומשוב.</p>
+      </article>
+      <article class="detail-card">
+        <h3>צוות מבצע</h3>
+        <p>מנהל 1, מנהל 2 ודובר.</p>
+      </article>
+      <article class="detail-card">
+        <h3>שימוש בדף</h3>
+        <p>ניתן לשנות סטטוס לכל משימה. השינויים נשמרים אוטומטית בדפדפן במכשיר שבו נפתח הדף.</p>
+      </article>
+    </section>
+
+    <p class="footer-note">כדי לפרסם את הדף ברשת אפשר להעלות את הקובץ לשירות אחסון אתרים כגון GitHub Pages, Netlify או שרת הארגון.</p>
+  </main>
+
+  <script>
+    const projectStart = new Date('2026-08-01T00:00:00');
+    const projectEnd = new Date('2026-08-30T00:00:00');
+
+    const tasks = [
+      { id: 1, task: 'בחירת מקום וסגירת תאריך', start: '2026-08-01', end: '2026-08-04', owner: 'מנהל 1', status: 'לא התחיל', dependency: '—' },
+      { id: 2, task: 'הזמנת מרצים', start: '2026-08-05', end: '2026-08-11', owner: 'מנהל 2', status: 'לא התחיל', dependency: 'בחירת מקום וסגירת תאריך' },
+      { id: 3, task: 'הכנת חומרי פרסום', start: '2026-08-12', end: '2026-08-16', owner: 'דובר', status: 'לא התחיל', dependency: 'הזמנת מרצים' },
+      { id: 4, task: 'פרסום ברשתות החברתיות', start: '2026-08-17', end: '2026-08-24', owner: 'דובר', status: 'לא התחיל', dependency: 'הכנת חומרי פרסום' },
+      { id: 5, task: 'פתיחת הרשמה', start: '2026-08-17', end: '2026-08-18', owner: 'מנהל 2', status: 'לא התחיל', dependency: 'הכנת חומרי פרסום' },
+      { id: 6, task: 'אישורי ספקים וציוד', start: '2026-08-19', end: '2026-08-25', owner: 'מנהל 1', status: 'לא התחיל', dependency: 'בחירת מקום וסגירת תאריך' },
+      { id: 7, task: 'ביצוע הכנס', start: '2026-08-27', end: '2026-08-27', owner: 'מנהל 1, מנהל 2, דובר', status: 'לא התחיל', dependency: 'השלמת כל ההכנות' },
+      { id: 8, task: 'סיכום ומשוב', start: '2026-08-28', end: '2026-08-30', owner: 'מנהל 1', status: 'לא התחיל', dependency: 'ביצוע הכנס' }
+    ];
+
+    const statusClass = {
+      'לא התחיל': 'not-started',
+      'בתהליך': 'in-progress',
+      'הושלם': 'done'
+    };
+
+    const savedStatuses = JSON.parse(localStorage.getItem('euraGanttStatuses') || '{}');
+    tasks.forEach(t => {
+      if (savedStatuses[t.id]) t.status = savedStatuses[t.id];
+    });
+
+    function formatDate(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function diffDays(start, end) {
+      return Math.round((new Date(end) - new Date(start)) / 86400000) + 1;
+    }
+
+    function getDates(start, end) {
+      const dates = [];
+      const current = new Date(start);
+      while (current <= end) {
+        dates.push(new Date(current));
+        current.setDate(current.getDate() + 1);
+      }
+      return dates;
+    }
+
+    const dates = getDates(projectStart, projectEnd);
+
+    function buildHeader() {
+      const row = document.getElementById('headerRow');
+      dates.forEach(date => {
+        const th = document.createElement('th');
+        th.className = 'day-head' + ([5, 6].includes(date.getDay()) ? ' weekend' : '');
+        th.innerHTML = `${date.getDate()}<br><small>${date.toLocaleDateString('he-IL', { weekday: 'short' })}</small>`;
+        row.appendChild(th);
+      });
+    }
+
+    function buildRows() {
+      const tbody = document.getElementById('taskRows');
+      tbody.innerHTML = '';
+
+      tasks.forEach(task => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="info">${task.id}</td>
+          <td class="task">${task.task}</td>
+          <td class="owner">${task.owner}</td>
+          <td class="status">
+            <select aria-label="סטטוס למשימה ${task.task}" onchange="changeStatus(${task.id}, this.value)">
+              <option ${task.status === 'לא התחיל' ? 'selected' : ''}>לא התחיל</option>
+              <option ${task.status === 'בתהליך' ? 'selected' : ''}>בתהליך</option>
+              <option ${task.status === 'הושלם' ? 'selected' : ''}>הושלם</option>
+            </select>
+          </td>
+          <td>${formatDate(task.start)}</td>
+          <td>${formatDate(task.end)}</td>
+          <td>${diffDays(task.start, task.end)} ימים</td>
+          <td>${task.dependency}</td>
+        `;
+
+        dates.forEach(date => {
+          const td = document.createElement('td');
+          if ([5, 6].includes(date.getDay())) td.classList.add('weekend');
+          const iso = date.toISOString().slice(0, 10);
+          if (iso >= task.start && iso <= task.end) {
+            const bar = document.createElement('div');
+            bar.className = `bar ${statusClass[task.status]}`;
+            bar.title = `${task.task}: ${formatDate(task.start)}–${formatDate(task.end)}`;
+            td.appendChild(bar);
+          }
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function changeStatus(id, value) {
+      const task = tasks.find(t => t.id === id);
+      task.status = value;
+      const statuses = {};
+      tasks.forEach(t => statuses[t.id] = t.status);
+      localStorage.setItem('euraGanttStatuses', JSON.stringify(statuses));
+      buildRows();
+    }
+
+    function resetStatuses() {
+      localStorage.removeItem('euraGanttStatuses');
+      tasks.forEach(t => t.status = 'לא התחיל');
+      buildRows();
+    }
+
+    buildHeader();
+    buildRows();
+  </script>
+</body>
+</html>
